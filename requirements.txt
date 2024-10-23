@@ -1,0 +1,10 @@
+aiohttp==3.10.10
+gpiozero==2.0.1
+numpy==1.24.2
+pigpio==1.78
+pysqueezebox==0.9.5
+requests==2.28.1
+RPi.GPIO==0.7.1a4
+spidev==3.5
+websockets==13.1
+Pillow~=9.4.0
