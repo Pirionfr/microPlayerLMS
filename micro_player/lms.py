@@ -44,7 +44,10 @@ class Player:
     async def _get_player(self, session):
         """Helper method to fetch the player object."""
         lms = Server(session, self.LMS)
-        return await lms.async_get_player(name=self.player_name)
+        player = await lms.async_get_player(name=self.player_name)
+        if player is None:
+            raise ValueError(f"player {self.player_name} not found")
+        return player
 
     async def _get_image(self, session, url):
         """Helper method to fetch and return an image with retries.
@@ -84,6 +87,16 @@ class Player:
         lms = Server(None, self.LMS)
         return lms.generate_image_url(url)
 
+    async def get_spotify_favorite(self):
+        sync_album_task = asyncio.create_task(self.get_spotify_albums())
+        sync_playlists_task = asyncio.create_task(self.get_spotify_playlists())
+
+        playlists = await sync_playlists_task
+        albums = await sync_album_task
+
+        playlists.extend(albums)
+        return playlists
+
     async def get_spotify_playlists(self):
         async with aiohttp.ClientSession() as session:
             player = await self._get_player(session)
@@ -92,10 +105,14 @@ class Player:
             if not item_id:
                 return []
 
+            playlists = []
             results = await player.async_query("spotty", "items", "0", "255", "menu:spotty", f"item_id:{item_id}.3")
-            return [{
-                "name": item["text"],
-                "url": item["presetParams"]["favorites_url"]} for item in results["item_loop"]]
+            for item in results["item_loop"]:
+                img = await self._get_image(session, item["presetParams"]["icon"])
+                playlists.append(
+                    Album(album=item["text"], artist=self.user, artwork=img, url=item["presetParams"]["favorites_url"])
+                )
+            return playlists
 
     async def get_spotify_albums(self):
         async with aiohttp.ClientSession() as session:
@@ -130,7 +147,7 @@ class Player:
     async def play(self):
         async with aiohttp.ClientSession() as session:
             player = await self._get_player(session)
-            await player.async_play()
+            asyncio.run(player.async_play())
 
     async def next(self):
         async with aiohttp.ClientSession() as session:

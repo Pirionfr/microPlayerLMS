@@ -12,7 +12,7 @@ async def main():
     try:
 
         lms_player = Player(config.LMS_SERVER, config.PLAYER_NAME, config.SPOTIFY_USER)
-        sync_album_task = asyncio.create_task(lms_player.get_spotify_albums())
+        sync_album_task = asyncio.create_task(lms_player.get_spotify_favorite())
         spotify_albums_index = 0
 
         eink_display = EinkDisplay(config.FULL_REFRESH_TIME, config.PARTIAL_UPDATE_COUNT)
