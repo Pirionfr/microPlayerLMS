@@ -141,6 +141,7 @@ class EinkDisplay:
         self.screen = 1
         self.baseImage = self.selector
         self.canvas.paste(self.selector)
+
         self.partial_refresh()
 
     def show_menu(self):
@@ -158,9 +159,9 @@ class EinkDisplay:
 
     def show_play_pause(self, is_playing=True):
         if is_playing:
-            self.draw_play()
-        else:
             self.draw_pause()
+        else:
+            self.draw_play()
         self.partial_refresh()
 
     def is_on_player_screen(self):
@@ -184,32 +185,32 @@ class EinkDisplay:
 
             # Menu
             if self.screen == 0:
-                if 29 < self.GT_Dev.X[0] < 92 and 50 < self.GT_Dev.Y[0] < 120:
+                if 10 < self.GT_Dev.X[0] < 112 and 10 < self.GT_Dev.Y[0] < 120:
                     return 'selector'
-                elif 29 < self.GT_Dev.X[0] < 92 and 140 < self.GT_Dev.Y[0] < 230:
+                elif 29 < self.GT_Dev.X[0] < 92 and 140 < self.GT_Dev.Y[0] < 240:
                     return 'player'
 
             # Sélector
             elif self.screen == 1:
-                if 1 < self.GT_Dev.X[0] < 85:
+                if 0 <= self.GT_Dev.X[0] <= 75:
                     return 'launch_player'
-                elif 90 < self.GT_Dev.X[0] < 122 and 160 < self.GT_Dev.Y[0] < 200:
+                elif 80 <= self.GT_Dev.X[0] <= 122 and 160 <= self.GT_Dev.Y[0] <= 210:
                     return 'previous_album'
-                elif 90 < self.GT_Dev.X[0] < 122 and 105 < self.GT_Dev.Y[0] < 145:
+                elif 80 <= self.GT_Dev.X[0] <= 122 and 100 <= self.GT_Dev.Y[0] <= 150:
                     return 'return_menu'
-                elif 90 < self.GT_Dev.X[0] < 122 and 50 < self.GT_Dev.Y[0] < 89:
+                elif 80 <= self.GT_Dev.X[0] <= 122 and 40 <= self.GT_Dev.Y[0] <= 90:
                     return 'next_album'
 
             elif self.screen == 2:
-                if 90 < self.GT_Dev.X[0] < 122 and 165 < self.GT_Dev.Y[0] < 200:
+                if 80 <= self.GT_Dev.X[0] <= 122 and 155 <= self.GT_Dev.Y[0] <= 200:
                     return 'return_menu'
-                elif 90 < self.GT_Dev.X[0] < 122 and 220 < self.GT_Dev.Y[0] < 250:
+                elif 80 <= self.GT_Dev.X[0] <= 122 and 210 <= self.GT_Dev.Y[0] <= 250:
                     return 'selector'
-                elif 90 < self.GT_Dev.X[0] < 122 and 0 < self.GT_Dev.Y[0] < 40:
+                elif 80 <= self.GT_Dev.X[0] <= 122 and 0 <= self.GT_Dev.Y[0] <= 40:
                     return 'next_track'
-                elif 90 < self.GT_Dev.X[0] < 122 and 100 < self.GT_Dev.Y[0] < 145:
+                elif 80 <= self.GT_Dev.X[0] <= 122 and 100 <= self.GT_Dev.Y[0] <= 145:
                     return 'previous_track'
-                elif 90 < self.GT_Dev.X[0] < 122 and 45 < self.GT_Dev.Y[0] < 85:
+                elif 80 <= self.GT_Dev.X[0] <= 122 and 47 <= self.GT_Dev.Y[0] <= 92:
                     return 'play_pause'
 
     def cleanup(self):
@@ -225,7 +226,7 @@ class EinkDisplay:
             else:
                 self.GT_Dev.Touch = 0
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.05)
 
     async def stop(self):
         """Stop Touch task"""

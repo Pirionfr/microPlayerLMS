@@ -147,7 +147,7 @@ class Player:
     async def play(self):
         async with aiohttp.ClientSession() as session:
             player = await self._get_player(session)
-            asyncio.run(player.async_play())
+            await player.async_play()
 
     async def next(self):
         async with aiohttp.ClientSession() as session:
@@ -226,9 +226,19 @@ class Player:
         if command == 'playlist':
             if 'newsong' in parts:
                 await self.update_current_track()
-            if 'stop' in parts:
+                self.player_status = 'play'
+            elif 'stop' in parts:
                 logging.debug(f"Player {player_id} paused.")
                 self.player_status = 'pause'
+            elif command == 'pause':
+                # Handle pause event
+                if '1' in parts:
+                    logging.debug(f"Player {player_id} paused.")
+                    self.player_status = 'pause'
+                elif '0' in parts:
+                    logging.debug(f"Player {player_id} resumed playing.")
+                    # Add logic here for resuming from pause
+                    self.player_status = 'play'
 
         elif command == 'play':
             # Handle play event
@@ -236,11 +246,5 @@ class Player:
             self.player_status = 'play'
 
         elif command == 'pause':
-            # Handle pause event
-            if '1' in parts:
-                logging.debug(f"Player {player_id} paused.")
-                self.player_status = 'pause'
-            else:
-                logging.debug(f"Player {player_id} resumed playing.")
-                # Add logic here for resuming from pause
-                self.player_status = 'play'
+            logging.debug(f"Player {player_id} paused.")
+            self.player_status = 'pause'

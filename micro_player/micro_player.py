@@ -18,6 +18,7 @@ async def main():
         eink_display = EinkDisplay(config.FULL_REFRESH_TIME, config.PARTIAL_UPDATE_COUNT)
         current_track = lms_player.current_track
         spotify_albums = await sync_album_task
+        is_playing = False
         while True:
             try:
 
@@ -36,10 +37,12 @@ async def main():
                                 current_track.artwork
                             )
 
-                    if lms_player.player_status == "play":
-                        eink_display.show_play_pause(False)
-                    else:
+                    if lms_player.player_status == "play" and not is_playing:
                         eink_display.show_play_pause(True)
+                        is_playing = True
+                    elif lms_player.player_status == "pause" and is_playing:
+                        eink_display.show_play_pause(False)
+                        is_playing = False
 
                 # Reading touch events and managing interactions.
                 touch_event = eink_display.read_touch()
@@ -52,6 +55,7 @@ async def main():
                             spotify_albums[spotify_albums_index].artist,
                             spotify_albums[spotify_albums_index].artwork,
                         )
+                        await lms_player.pause()
 
                     elif touch_event == 'player':
                         logging.debug("Player icon touched...")
@@ -97,11 +101,13 @@ async def main():
                         if spotify_albums_index < len(spotify_albums) - 1:
                             logging.debug("return menu...")
                             eink_display.show_menu()
+                            await lms_player.pause()
 
                     elif touch_event == 'next_track':
                         logging.debug("next track touched...")
                         await lms_player.next()
                         await lms_player.update_current_track()
+                        current_track = lms_player.current_track
                         eink_display.update_current_track(
                             lms_player.current_track.title,
                             lms_player.current_track.album,
@@ -112,6 +118,7 @@ async def main():
                         logging.debug("next track touched...")
                         await lms_player.previous()
                         await lms_player.update_current_track()
+                        current_track = lms_player.current_track
                         eink_display.update_current_track(
                             lms_player.current_track.title,
                             lms_player.current_track.album,
@@ -123,13 +130,15 @@ async def main():
                         if lms_player.player_status == "play":
                             logging.debug("pause...")
                             await lms_player.pause()
-                            eink_display.show_play_pause(True)
+                            eink_display.show_play_pause(False)
+                            is_playing = False
                         else:
                             logging.debug("play...")
                             await lms_player.play()
-                            eink_display.show_play_pause(False)
+                            eink_display.show_play_pause(True)
+                            is_playing = True
 
-                await asyncio.sleep(0.02)
+                await asyncio.sleep(0.05)
 
             except Exception as e:
                 logging.error(f"Error during screen or music management : {e}")
